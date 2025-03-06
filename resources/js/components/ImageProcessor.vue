@@ -16,16 +16,16 @@
     <div v-if="result" class="mt-4 p-3 bg-gray-100 rounded">
       <h3 class="font-semibold">Response:</h3>
       <p class="text-sm">{{ result }}</p>
-       <hr>
+      <hr>
       <img v-if="outputImage" :src="outputImage" alt="Generated Layout" />
-       <hr>
-      <h3>Extracted Text:</h3>
+      <hr>
+      <h3 class="font-semibold">Extracted Text:</h3>
       <p v-if="extractedText">{{ extractedText }}</p>
-       <hr>
-      <h3>Generated Output:</h3>
+      <hr>
+      <h3 class="font-semibold">Generated Output:</h3>
       <p v-if="result.generated_text">{{ result.generated_text }}</p>
-       <hr>
-      <h3>Segmentation Mask:</h3>
+      <hr>
+      <h3 class="font-semibold">Segmentation Mask:</h3>
       <img v-if="segmentationImage" :src="segmentationImage" alt="Segmentation Mask" />
     </div>
   </div>
@@ -58,26 +58,45 @@ export default {
         return;
       }
       this.loading = true;
+
       let formData = new FormData();
       formData.append("image", this.selectedFile);
 
       try {
-        const response = await fetch("http://127.0.0.1:8001/process-image/", {
-          method: "POST",
-          body: formData
+        const response = await axios.post("http://127.0.0.1:8000/api/process-image", formData, {
+          headers: { "Content-Type": "multipart/form-data" }
         });
-        const data = await response.json();
-        this.result = data;
-        console.log('result', data); // Debugging Log
 
-        // Assume the API returns an output_image field and extracted_text as an array.
-        this.outputImage = "/storage/" + data.output_image;
-        this.extractedText = data.extracted_text.join(" ");
+        const data = response.data;
+        console.log("Server Response:", data); // Debugging Log
+
+        if (data.output_image) {
+          this.outputImage = "/storage/" + data.output_image;
+        }
+
+        if (data.extracted_text) {
+          this.extractedText = Array.isArray(data.extracted_text) ? data.extracted_text.join(" ") : data.extracted_text;
+        }
+
+        this.result = data;
       } catch (error) {
         console.error("Error:", error.response?.data || error.message);
         this.result = "Server error. Please try again.";
       } finally {
         this.loading = false;
+      }
+    },
+    async uploadImage(event) {
+      let file = event.target.files[0];
+      let formData = new FormData();
+      formData.append("image", selectedFile);
+
+      try {
+        let response = await axios.post("/api/process-image", formData);
+        this.outputImage = "/storage/" + response.data.output_image;
+        this.extractedText = response.data.extracted_text.join(" ");
+      } catch (error) {
+        console.error("Error processing image:", error);
       }
     }
   }

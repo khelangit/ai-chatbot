@@ -30,14 +30,30 @@ class ChatController extends Controller
         }
     }
 
-    public function imageProcessor(Request $request)
+    public function processImage(Request $request)
     {
-        $response = Http::attach(
-            'file', 
-            file_get_contents($request->file('image')->getRealPath()), 
-            $request->file('image')->getClientOriginalName()
-        )->post('http://127.0.0.1:8001/process_image');
+        try {
+            // Validate image file
+            $request->validate([
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
 
-        return response()->json($response->json());
+            // Make a POST request with the image file
+            $response = Http::attach(
+                'file', 
+                file_get_contents($request->file('image')->path()), 
+                $request->file('image')->getClientOriginalName()
+            )->post('http://127.0.0.1:8001/process-image');
+
+            // Check response
+            if ($response->successful()) {
+                return response()->json($response->json());
+            } else {
+                return response()->json(['error' => 'Image processing failed.'], 500);
+            }
+        } catch (\Exception $e) {
+            Log::error('Image Processing Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Error processing image: ' . $e->getMessage()], 500);
+        }
     }
 }

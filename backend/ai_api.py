@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 import torch
 from diffusers import StableDiffusionPipeline
 import cv2
@@ -8,6 +9,23 @@ from segment_anything import sam_model_registry, SamAutomaticMaskGenerator
 import uvicorn
 
 app = FastAPI()
+
+# Allow requests from frontend (http://localhost:8000)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8000"],  # Change "*" to allow only frontend
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
+
+@app.get("/")
+def read_root():
+    return {"message": "CORS enabled!"}
+
+@app.post("/process-image/")
+def process_image():
+    return {"message": "Image processed successfully"}
 
 # Load PaddleOCR Model
 ocr = PaddleOCR(use_angle_cls=True, lang='en')

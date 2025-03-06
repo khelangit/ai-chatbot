@@ -20,14 +20,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Response::macro('cors', function ($content = '', $status = 200, array $headers = []) {
-            $defaultHeaders = [
+        Response::macro('cors', function ($content, $status = 200, array $headers = []) {
+            return response($content, $status)->withHeaders(array_merge([
                 'Access-Control-Allow-Origin' => '*',
                 'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers' => 'Content-Type, Authorization',
-            ];
-
-            return response($content, $status)->withHeaders(array_merge($defaultHeaders, $headers));
+                'Access-Control-Allow-Headers' => 'Content-Type, Authorization, X-Requested-With'
+            ], $headers));
         });
     }
 }

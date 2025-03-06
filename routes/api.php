@@ -2,19 +2,12 @@
 
 // routes/api.php
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ImageProcessorController;
-use Illuminate\Support\Facades\Route;
 
-Route::post('/chat', [ChatController::class, 'chat']);
-Route::post('/process-image', function(Request $request) {
-    $response = Http::attach(
-        'file', $request->file('image')->get(),
-        $request->file('image')->getClientOriginalName()
-    )->post('http://127.0.0.1:8001/process-image');
-
-    return response()->json($response->json());
+Route::middleware([\App\Http\Middleware\CorsMiddleware::class])->group(function () {
+    Route::post('/chat', [ChatController::class, 'chat']);
+    Route::post('/process-image', [ImageProcessorController::class, 'processImage']);
 });
-Route::post('/imageprocess', [ImageProcessorController::class, 'processImage']);
 

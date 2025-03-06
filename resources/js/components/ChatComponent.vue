@@ -103,6 +103,7 @@ export default {
   components: {
     ImageProcessor,
   },
+
   data() {
     return {
       chatHistory: [],
@@ -235,6 +236,20 @@ export default {
 .app-container {
   display: flex;
   height: 100vh;
+  overflow: hidden; /* Prevents scrolling */
+}
+
+.chat-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px;
+  min-height: 0;
+  scrollbar-width: none; /* For Firefox */
+}
+
+/* Hide scrollbar for chat messages */
+.chat-container::-webkit-scrollbar {
+  display: none;
 }
 
 .sidebar {
