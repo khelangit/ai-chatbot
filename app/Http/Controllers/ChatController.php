@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ChatController extends Controller
 {
@@ -24,22 +25,19 @@ class ChatController extends Controller
                 return response()->json(['error' => 'AI Model did not respond properly.'], 500);
             }
         } catch (\Exception $e) {
-            \Log::error('Chat API Error: ' . $e->getMessage());
+            Log::error('Chat API Error: ' . $e->getMessage());
             return response()->json(['error' => 'Error connecting to AI model: ' . $e->getMessage()], 500);
         }
     }
 
     public function imageProcessor(Request $request)
-{
-    echo "hello"; exit;
-    $response = Http::attach(
-        'file', 
-        file_get_contents($request->file('image')->getRealPath()), 
-        $request->file('image')->getClientOriginalName()
-    )->post('http://127.0.0.1:8001/image_processor');
+    {
+        $response = Http::attach(
+            'file', 
+            file_get_contents($request->file('image')->getRealPath()), 
+            $request->file('image')->getClientOriginalName()
+        )->post('http://127.0.0.1:8001/process_image');
 
-    return response()->json($response->json());
+        return response()->json($response->json());
+    }
 }
-
-}
-

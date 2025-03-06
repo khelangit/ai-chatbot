@@ -8,5 +8,18 @@
 @endsection
 
 @push('scripts')
-<script src="{{ mix('js/app.js') }}"></script>
+<script src="{{ mix('js/app.js') }}">
+    export default {
+  data() {
+    return {
+      showImageProcessor: false
+    };
+  },
+  methods: {
+    toggleImageProcessor() {
+      this.showImageProcessor = !this.showImageProcessor;
+    }
+  }
+};
+</script>
 @endpush

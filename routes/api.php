@@ -4,6 +4,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ImageProcessorController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/chat', [ChatController::class, 'chat']);
@@ -15,4 +16,5 @@ Route::post('/process-image', function(Request $request) {
 
     return response()->json($response->json());
 });
+Route::post('/imageprocess', [ImageProcessorController::class, 'processImage']);
 
