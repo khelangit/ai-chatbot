@@ -1,3 +1,4 @@
 backend/myenv/lib/python3.10/site-packages/paddle/base/libpaddle.so filter=lfs diff=lfs merge=lfs -text
 backend/myenv/lib/python3.10/site-packages/torch/lib/libtorch_cpu.dylib filter=lfs diff=lfs merge=lfs -text
 backend/sam_vit_b.pth filter=lfs diff=lfs merge=lfs -text
+backend/myenv/lib/python3.10/site-packages/paddle/libs/libphi.dylib filter=lfs diff=lfs merge=lfs -text
