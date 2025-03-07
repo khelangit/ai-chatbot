@@ -15,7 +15,7 @@ class ImageProcessorController extends Controller
         ]);
 
         try {
-            $response = Http::timeout(300) // Increase timeout to 300 seconds
+            $response = Http::timeout(90) // Increase timeout to 300 seconds
                 ->attach(
                     'file',
                     file_get_contents($request->file('image')->getRealPath()),
