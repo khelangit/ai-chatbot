@@ -63,8 +63,9 @@ export default {
       formData.append("image", this.selectedFile);
 
       try {
-        const response = await axios.post("http://127.0.0.1:8000/api/process-image", formData, {
-          headers: { "Content-Type": "multipart/form-data" }
+        const response = await axios.post("http://127.0.0.1:8001/api/process-image", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+          timeout: 120000 // Increase timeout to 2 minutes
         });
 
         const data = response.data;
