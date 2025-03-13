@@ -30,7 +30,7 @@ app.add_middleware(
 
 # Create output directory if it doesn't exist
 UPLOAD_DIR = "uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+os.makedirs(UPLOAD_DIR, exist_ok=True)       
 
 # Initialize models
 ocr = PaddleOCR(use_angle_cls=True, lang='en')

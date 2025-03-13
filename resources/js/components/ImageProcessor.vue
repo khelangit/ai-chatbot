@@ -17,7 +17,9 @@
       <h3 class="font-semibold">Response:</h3>
       <p class="text-sm">{{ result }}</p>
       <hr>
-      <img v-if="outputImage" :src="outputImage" alt="Generated Layout" />
+      <hr>
+      <h3 class="font-semibold">Generated Image:</h3>
+      <img v-if="outputImage" :src="outputImage" alt="Generated Layout" class="max-w-full h-auto my-2" />
       <hr>
       <h3 class="font-semibold">Extracted Text:</h3>
       <p v-if="extractedText">{{ extractedText }}</p>
@@ -27,6 +29,10 @@
       <hr>
       <h3 class="font-semibold">Segmentation Mask:</h3>
       <img v-if="segmentationImage" :src="segmentationImage" alt="Segmentation Mask" />
+      <hr>
+      <h3 class="font-semibold">HTML Layout Generated from Image:</h3>
+      <img v-if="outputImage" :src="outputImage" alt="HTML Layout" class="max-w-full h-auto my-2" />
+      <hr>
     </div>
   </div>
 </template>
@@ -60,19 +66,20 @@ export default {
       this.loading = true;
 
       let formData = new FormData();
-      formData.append("image", this.selectedFile);
+      formData.append("file", this.selectedFile); // Changed from "image" to "file" to match FastAPI parameter
 
       try {
-        const response = await axios.post("http://127.0.0.1:8001/api/process-image", formData, {
+        const response = await axios.post("http://127.0.0.1:8001/process_image/", formData, { // Updated URL to match FastAPI endpoint
           headers: { "Content-Type": "multipart/form-data" },
-          timeout: 120000 // Increase timeout to 2 minutes
+          //  timeout: 120000 // Increase timeout to 2 minutes
         });
 
         const data = response.data;
         console.log("Server Response:", data); // Debugging Log
 
         if (data.output_image) {
-          this.outputImage = "/storage/" + data.output_image;
+          // Use the absolute path if available, otherwise fallback to relative path
+          this.outputImage = data.absolute_output_path || data.output_image;
         }
 
         if (data.extracted_text) {
@@ -87,19 +94,7 @@ export default {
         this.loading = false;
       }
     },
-    async uploadImage(event) {
-      let file = event.target.files[0];
-      let formData = new FormData();
-      formData.append("image", selectedFile);
-
-      try {
-        let response = await axios.post("/api/process-image", formData);
-        this.outputImage = "/storage/" + response.data.output_image;
-        this.extractedText = response.data.extracted_text.join(" ");
-      } catch (error) {
-        console.error("Error processing image:", error);
-      }
-    }
+    // Remove the duplicate uploadImage method
   }
 };
 </script>

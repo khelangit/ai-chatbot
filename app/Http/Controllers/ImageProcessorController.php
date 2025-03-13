@@ -10,28 +10,25 @@ class ImageProcessorController extends Controller
 {
     public function processImage(Request $request)
     {
+        // The controller validates 'image' parameter
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'file' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        try {
-            $response = Http::timeout(90) // Increase timeout to 300 seconds
-                ->attach(
-                    'file',
-                    file_get_contents($request->file('image')->getRealPath()),
-                    $request->file('image')->getClientOriginalName()
-                )
-                ->post('http://127.0.0.1:8001/process_image/');
+        // But attaches the file as 'file' to the FastAPI request
+        $response = Http::timeout(90)
+            ->attach(
+                'file',
+                file_get_contents($request->file('file')->getRealPath()),
+                $request->file('file')->getClientOriginalName()
+            )
+            ->post('http://127.0.0.1:8001/process_image/');
 
-            if ($response->failed()) {
-            Log::error("FastAPI Error: " . $response->body());
-                return response()->json(['error' => 'FastAPI Error: ' . $response->body()], 500);
-            }
-
-            return response()->json($response->json());
-        } catch (\Exception $e) {
-            Log::error("Image Processing Exception: " . $e->getMessage());
-            return response()->json(['error' => 'Error processing image: ' . $e->getMessage()], 500);
+        if ($response->failed()) {
+        Log::error("FastAPI Error: " . $response->body());
+            return response()->json(['error' => 'FastAPI Error: ' . $response->body()], 500);
         }
+
+        return response()->json($response->json());
     }
 }
