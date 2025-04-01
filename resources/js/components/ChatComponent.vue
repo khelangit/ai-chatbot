@@ -74,13 +74,20 @@
     </div>
 
     <!-- Input Box -->
-    <div class="bg-white dark:bg-gray-800 p-4 shadow-lg flex items-center">
-      <input v-model="userMessage" @keyup.enter="sendMessage"
-        class="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-        placeholder="Type your message..." :disabled="isLoading" />
-      <button @click="sendMessage" class="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-        :disabled="isLoading">
-        {{ isLoading ? 'Waiting...' : 'Send' }}
+    <div class="bg-white dark:bg-gray-800 p-4 shadow-lg flex items-center sticky bottom-0">
+      <input 
+        v-model="userMessage" 
+        @keyup.enter="sendMessage"
+        class="flex-1 p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-200"
+        placeholder="Type your message..." 
+        :disabled="isLoading"/>
+      <button 
+        @click="sendMessage" 
+        class="ml-3 px-5 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-md"
+        :disabled="isLoading"
+        :class="{ 'opacity-50 cursor-not-allowed': isLoading }"
+      >
+        {{ isLoading ? 'Sending...' : 'Send' }}
       </button>
     </div>
   </div>
@@ -207,7 +214,7 @@ export default {
         /<pre><code class="([^"]*)">([\s\S]*?)<\/code><\/pre>/g,
         (match, lang, code) => {
           const highlightedCode = hljs.highlightAuto(code).value;
-          return `<pre class="bg-gray-800 text-white p-3 rounded-lg"><code class="hljs">${highlightedCode}</code></pre>`;
+          return `<pre class="bg-gray-800 text-white p-2 rounded-lg"><code class="hljs">${highlightedCode}</code></pre>`;
         }
       );
     },
@@ -301,30 +308,32 @@ export default {
   }
 }
 
+/* Main container styling */
 .app-container {
   display: flex;
-  height: 100vh;
-  overflow: hidden; /* Prevents scrolling */
+  height: calc(100vh - 120px); /* Account for header and input */
+  justify-content: center;
 }
 
-/* Add this new style for the chat container */
+/* Chat container styling */
 .chat-container {
-  flex: 1;
+  width: 210mm; /* A4 width */
+  max-width: 800px;
+  height: 297mm; /* A4 height */
+  max-height: 80vh;
+  margin: 0 auto;
+  padding: 20px;
   overflow-y: auto;
-  padding: 4px;
-  min-height: 0;
-  scrollbar-width: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
+  background: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-/* Update message container styles */
+/* Message container styling */
 .flex.items-start.relative {
   width: 100%;
-  max-width: 800px; /* Adjust this value as needed */
-  padding: 0 1rem;
+  max-width: 700px; /* Slightly less than container width */
+  margin: 0 auto 1rem;
+  padding: 0 10px;
 }
 
 /* Hide scrollbar for chat messages */
