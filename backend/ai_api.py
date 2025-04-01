@@ -16,6 +16,10 @@ import multiprocessing
 import base64
 from io import BytesIO
 from PIL import Image
+import atexit
+import multiprocessing.util  # Replace resource_tracker with this
+import logging
+from logging.handlers import RotatingFileHandler
 
 app = FastAPI()
 
@@ -52,6 +56,22 @@ def image_to_base64(image):
     buffered = BytesIO()
     image.save(buffered, format="PNG")
     return base64.b64encode(buffered.getvalue()).decode()
+
+@app.get("/process_image/")
+async def get_process_image_instructions():
+    return {
+        "message": "Please use POST method to upload an image",
+        "example_request": {
+            "method": "POST",
+            "url": "http://127.0.0.1:8001/process_image/",
+            "headers": {
+                "Content-Type": "multipart/form-data"
+            },
+            "body": {
+                "file": "image_file.png"
+            }
+        }
+    } 
 
 @app.post("/process_image/")
 async def process_image(file: UploadFile = File(...)):
@@ -108,6 +128,36 @@ async def process_image(file: UploadFile = File(...)):
 def read_root():
     return {"message": "API is running!"}
 
+def cleanup():
+    # Clean up multiprocessing resources
+    for process in multiprocessing.active_children():
+        process.terminate()
+    multiprocessing.util._cleanup()
+
+# Configure logging
+LOG_DIR = "logs"
+os.makedirs(LOG_DIR, exist_ok=True)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        RotatingFileHandler(
+            os.path.join(LOG_DIR, 'uvicorn.log'),
+            maxBytes=1024*1024,  # 1MB
+            backupCount=3
+        ),
+        logging.StreamHandler()
+    ]
+)
+
 if __name__ == "__main__":
+    atexit.register(cleanup)
     multiprocessing.set_start_method("fork", force=True)
-    uvicorn.run("ai_api:app", host="127.0.0.1", port=8001, reload=True, timeout_keep_alive=600)
+    uvicorn.run(
+        "ai_api:app",
+        host="127.0.0.1",
+        port=8001,
+        reload=True,
+        timeout_keep_alive=600,
+        log_config=None  # Disable default uvicorn logging config
+    )

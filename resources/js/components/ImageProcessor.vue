@@ -4,14 +4,16 @@
 
     <input type="file" @change="handleFileUpload" accept="image/*" class="border p-2 rounded w-full" />
 
-    <button @click="processImage" :disabled="!selectedFile"
+    <button @click="processImage" :disabled="!selectedFile || loading"
       class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400">
-      Upload & Process
+      <span v-if="loading">
+        Processing ({{ processingTime }}s)<span class="dots"></span>
+      </span>
+      <span v-else>
+        Upload & Process
+      </span>
     </button>
 
-    <div v-if="loading" class="text-blue-500">
-      Processing<span class="dots"></span>
-    </div>
 
     <div v-if="result" class="mt-4 p-3 bg-gray-100 rounded">
       <h3 class="font-semibold">Response:</h3>
@@ -49,6 +51,7 @@ export default {
       segmentationImage: null,
       outputImage: null,
       extractedText: null,
+      processingTime: 0  // Add processing time tracking
     };
   },
   methods: {
@@ -64,21 +67,23 @@ export default {
         return;
       }
       this.loading = true;
+      const startTime = Date.now();  // Record start time
 
       let formData = new FormData();
-      formData.append("file", this.selectedFile); // Changed from "image" to "file" to match FastAPI parameter
+      formData.append("file", this.selectedFile);
 
       try {
-        const response = await axios.post("http://127.0.0.1:8001/process_image/", formData, { // Updated URL to match FastAPI endpoint
-          headers: { "Content-Type": "multipart/form-data" },
-          //  timeout: 120000 // Increase timeout to 2 minutes
+        const response = await axios.post("http://127.0.0.1:8001/process_image/", formData, {
+          headers: { "Content-Type": "multipart/form-data" }
         });
 
         const data = response.data;
-        console.log("Server Response:", data); // Debugging Log
+        console.log("Server Response:", data);
+
+        // Calculate processing time
+        this.processingTime = ((Date.now() - startTime) / 1000).toFixed(2);
 
         if (data.output_image) {
-          // Use the absolute path if available, otherwise fallback to relative path
           this.outputImage = data.absolute_output_path || data.output_image;
         }
 

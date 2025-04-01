@@ -112,18 +112,34 @@ export default {
       isLoading: false,
       showChat: false,
       showImageProcessor: false,
-      processedOutput: "", // Store processed image output
+      processedOutput: null, // Changed to null for better state tracking
       messages: [],
+      currentChatId: null, // Track active chat
     };
   },
   methods: {
     toggleImageProcessor() {
       this.showImageProcessor = !this.showImageProcessor;
+      if (!this.showImageProcessor) {
+        this.processedOutput = null;
+      }
     },
-    handleImageProcessed(imageUrl) {
-      this.messages.push({ text: imageUrl, sender: "bot", type: "image" });
-      this.processedOutput = result; // Store output
-      this.showImageProcessor = false; // Close the overlay
+    handleImageProcessed(result) { // Fixed parameter name
+      if (result && result.output_image) {
+        this.messages.push({
+          text: result.output_image,
+          sender: "bot",
+          type: "image"
+        });
+        if (result.extracted_text) {
+          this.messages.push({
+            text: `Extracted text: ${result.extracted_text}`,
+            sender: "bot",
+            type: "text"
+          });
+        }
+      }
+      this.showImageProcessor = false;
     },
     async sendMessage() {
       if (!this.userMessage.trim() || this.isLoading) return;
@@ -136,20 +152,46 @@ export default {
       this.isTyping = true;
 
       try {
-        const res = await apiClient.post("/chat", { prompt: message });
-        this.isTyping = false;
-        this.isLoading = false;
-        this.messages.push({ text: res.data.reply, sender: "bot", type: "text" });
+        const res = await apiClient.post("/chat", { 
+          prompt: message,
+          chatId: this.currentChatId 
+        });
+        
+        if (res.data.chatId && !this.currentChatId) {
+          this.currentChatId = res.data.chatId;
+        }
+
+        this.messages.push({
+          text: res.data.reply,
+          sender: "bot",
+          type: "text"
+        });
       } catch (error) {
+        console.error("Chat error:", error);
+        this.messages.push({
+          text: "Sorry, I encountered an error. Please try again.",
+          sender: "bot",
+          type: "text"
+        });
+      } finally {
         this.isTyping = false;
         this.isLoading = false;
-        this.messages.push({ text: "Error: Unable to fetch response.", sender: "bot", type: "text" });
+        this.$nextTick(() => {
+          this.scrollToBottom();
+        });
       }
     },
-    // BUG FIX: Added missing startNewChat method
     startNewChat() {
       this.showChat = true;
       this.messages = [];
+      this.currentChatId = null;
+      this.processedOutput = null;
+    },
+    scrollToBottom() {
+      const container = this.$refs.chatContainer;
+      if (container) {
+        container.scrollTop = container.scrollHeight;
+      }
     },
     // Placeholder methods for loadChat and deleteChat
     loadChat(chat) {
@@ -170,32 +212,58 @@ export default {
       );
     },
   },
+  mounted() {
+    this.loadChatHistory();
+  }
 };
 </script>
 
 <style scoped>
-/* Overlay for Image Processor */
+/* Improved overlay styling */
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  transition: opacity 0.3s ease-in-out;
+  backdrop-filter: blur(5px);
 }
 
 .overlay-content {
   background: white;
-  padding: 20px;
-  border-radius: 10px;
-  width: 80%;
-  height: 80%;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow: auto;
   position: relative;
+}
+
+/* Improved message bubbles */
+.message-bubble {
+  max-width: 80%;
+  word-wrap: break-word;
+  margin-bottom: 0.5rem;
+}
+
+.user-message {
+  align-self: flex-end;
+  background: #3b82f6;
+  color: white;
+  border-radius: 18px 18px 0 18px;
+}
+
+.bot-message {
+  align-self: flex-start;
+  background: #f3f4f6;
+  color: #111827;
+  border-radius: 18px 18px 18px 0;
 }
 
 .close-btn {
