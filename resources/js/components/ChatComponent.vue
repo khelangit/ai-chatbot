@@ -307,12 +307,24 @@ export default {
   overflow: hidden; /* Prevents scrolling */
 }
 
+/* Add this new style for the chat container */
 .chat-container {
   flex: 1;
   overflow-y: auto;
   padding: 4px;
   min-height: 0;
-  scrollbar-width: none; /* For Firefox */
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Update message container styles */
+.flex.items-start.relative {
+  width: 100%;
+  max-width: 800px; /* Adjust this value as needed */
+  padding: 0 1rem;
 }
 
 /* Hide scrollbar for chat messages */
