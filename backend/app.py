@@ -2,7 +2,7 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
 import shutil
 import os
-from backend.ai_api import ImageProcessor
+from ai_api import ImageProcessor
 
 app = FastAPI()
 processor = ImageProcessor()

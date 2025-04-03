@@ -2,10 +2,12 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
 import torch
-from diffusers import StableDiffusionPipeline
+from diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion import StableDiffusionPipeline
 import cv2
 from paddleocr import PaddleOCR
 import numpy as np
+# First install segment-anything package using:
+# pip install git+https://github.com/facebookresearch/segment-anything.git
 from segment_anything import sam_model_registry, SamAutomaticMaskGenerator
 import uvicorn
 import asyncio
@@ -132,6 +134,7 @@ def cleanup():
     # Clean up multiprocessing resources
     for process in multiprocessing.active_children():
         process.terminate()
+    # Clean up any remaining multiprocessing resources
     multiprocessing.util._cleanup()
 
 # Configure logging

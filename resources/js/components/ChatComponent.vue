@@ -311,34 +311,63 @@ export default {
 /* Main container styling */
 .app-container {
   display: flex;
-  height: calc(100vh - 120px); /* Account for header and input */
-  justify-content: center;
+  height: calc(100vh - 120px);
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Chat container styling */
 .chat-container {
-  width: 210mm; /* A4 width */
-  max-width: 800px;
-  height: 297mm; /* A4 height */
-  max-height: 80vh;
-  margin: 0 auto;
-  padding: 20px;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 1rem;
   overflow-y: auto;
-  background: white;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Input box container styling */
+.bg-white.dark\:bg-gray-800 {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  border-radius: 0;
+  position: fixed;
+  bottom: 0;
+  padding: 1rem;
 }
 
 /* Message container styling */
 .flex.items-start.relative {
   width: 100%;
-  max-width: 700px; /* Slightly less than container width */
+  max-width: 100%;
   margin: 0 auto 1rem;
-  padding: 0 10px;
+  padding: 0 1rem;
+}
+
+/* Sidebar styling */
+.sidebar {
+  width: 280px;
+  min-width: 280px;
+  max-width: 280px;
+}
+
+/* Message bubbles */
+.message-bubble {
+  max-width: 90%;
+}
+
+/* Overlay content */
+.overlay-content {
+  width: 95%;
+  max-width: 800px;
 }
 
 /* Hide scrollbar for chat messages */
 .chat-container::-webkit-scrollbar {
   display: none;
+  width: 0;
+  height: 0;
 }
 
 .sidebar {
