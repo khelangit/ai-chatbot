@@ -48,7 +48,8 @@ npm run dev
  ```
 
 ## Configuration
-'''ini: 
+'''ini:
+
 AI_API_ENDPOINT=http://localhost:8001
 OCR_MODEL_PATH=/path/to/ocr/model
 IMAGE_PROCESSING_ENABLED=true 
